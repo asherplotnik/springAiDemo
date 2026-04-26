@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>פלטפורמת בנקאות — צ׳אט סוכן</title>
+  <meta name="description" content="בדיקת סוכן הבנקאות עם בינה מלאכותית בממשק צ׳אט חי." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset & Base ───────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #0d1117;
+      --bg-panel:    #161b22;
+      --bg-card:     #1c2333;
+      --bg-input:    #21262d;
+      --border:      #30363d;
+      --border-soft: #21262d;
+
+      --accent:      #4f9cf9;
+      --accent2:     #7b61ff;
+      --accent-glow: rgba(79,156,249,.25);
+
+      --user-bg:     linear-gradient(135deg, #4f9cf9 0%, #7b61ff 100%);
+      --agent-bg:    #1c2333;
+
+      --text-primary:   #e6edf3;
+      --text-secondary: #8b949e;
+      --text-muted:     #484f58;
+
+      --green:  #3fb950;
+      --yellow: #d29922;
+      --red:    #f85149;
+      --teal:   #39d353;
+
+      --radius-sm: 8px;
+      --radius:    14px;
+      --radius-lg: 20px;
+
+      --sidebar-w: 300px;
+      --header-h:  60px;
+    }
+
+    html, body { height: 100%; }
+
+    body {
+      font-family: 'Heebo', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Header ─────────────────────────────────────────────────── */
+    header {
+      height: var(--header-h);
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 0 20px;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .header-logo {
+      width: 36px; height: 36px;
+      background: var(--user-bg);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .header-title { font-weight: 600; font-size: 15px; }
+    .header-sub   { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
+
+    .header-status {
+      margin-inline-start: auto;
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; color: var(--text-secondary);
+    }
+    .status-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity: 1; } 50% { opacity: 0.4; }
+    }
+
+    /* ── Layout ──────────────────────────────────────────────────── */
+    .layout {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* ── Sidebar ─────────────────────────────────────────────────── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--bg-panel);
+      border-inline-end: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .sidebar-section {
+      padding: 16px;
+      border-bottom: 1px solid var(--border-soft);
+    }
+
+    .sidebar-section h3 {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    /* Customer selector */
+    .customer-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .customer-btn {
+      display: flex; align-items: center; gap: 10px;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      cursor: pointer;
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 13px;
+      text-align: start;
+      transition: all .15s;
+    }
+    .customer-btn:hover { background: var(--bg-card); border-color: var(--border); }
+    .customer-btn.active { background: var(--bg-card); border-color: var(--accent); }
+
+    .customer-avatar {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: var(--user-bg);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .customer-info { flex: 1; min-width: 0; }
+    .customer-name { font-weight: 500; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .customer-id   { font-size: 11px; color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; }
+
+    /* Accounts / balances */
+    .accounts-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .account-row {
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--bg-card);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      font-size: 12px;
+    }
+
+    .account-row-left { display: flex; flex-direction: column; gap: 2px; }
+    .account-id   { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); }
+    .account-type { color: var(--text-secondary); font-size: 11px; text-transform: capitalize; }
+    .account-balance { font-weight: 600; font-size: 13px; color: var(--green); }
+
+    /* Reset button */
+    .btn-reset {
+      width: 100%;
+      padding: 8px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      font-family: inherit;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      transition: all .15s;
+    }
+    .btn-reset:hover { background: rgba(248,81,73,.08); border-color: var(--red); color: var(--red); }
+
+    /* Session info */
+    .session-info {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+      word-break: break-all;
+      line-height: 1.5;
+    }
+    .session-label { color: var(--text-secondary); font-size: 11px; margin-bottom: 3px; }
+
+    /* ── Chat area ───────────────────────────────────────────────── */
+    .chat-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Quick prompts bar */
+    .quick-prompts {
+      display: flex;
+      gap: 8px;
+      padding: 12px 20px;
+      overflow-x: auto;
+      flex-shrink: 0;
+      border-bottom: 1px solid var(--border-soft);
+      scrollbar-width: none;
+    }
+    .quick-prompts::-webkit-scrollbar { display: none; }
+
+    .chip {
+      flex-shrink: 0;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-family: inherit;
+      transition: all .15s;
+      white-space: nowrap;
+    }
+    .chip:hover { border-color: var(--accent); color: var(--accent); background: rgba(79,156,249,.08); }
+
+    /* Messages */
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+    .messages::-webkit-scrollbar { width: 4px; }
+    .messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    /* Message wrapper */
+    .msg { display: flex; gap: 10px; max-width: 100%; }
+    .msg.user { flex-direction: row-reverse; }
+
+    .msg-avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .msg.agent .msg-avatar { background: var(--bg-card); border: 1px solid var(--border); }
+    .msg.user  .msg-avatar { background: var(--user-bg); }
+
+    .msg-body { display: flex; flex-direction: column; gap: 4px; max-width: 70%; }
+    .msg.user .msg-body { align-items: flex-end; }
+
+    .msg-bubble {
+      padding: 10px 14px;
+      border-radius: var(--radius);
+      font-size: 14px;
+      line-height: 1.6;
+      word-break: break-word;
+    }
+    .msg.agent .msg-bubble {
+      background: var(--agent-bg);
+      border: 1px solid var(--border-soft);
+      border-start-start-radius: 4px;
+    }
+    .msg.user .msg-bubble {
+      background: var(--user-bg);
+      color: #fff;
+      border-start-end-radius: 4px;
+    }
+
+    /* Markdown-ish rendering */
+    .msg-bubble strong { font-weight: 600; }
+    .msg-bubble em { font-style: italic; }
+    .msg-bubble code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      background: rgba(255,255,255,.08);
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+    .msg-bubble ul, .msg-bubble ol { padding-inline-start: 20px; margin: 4px 0; }
+    .msg-bubble li { margin: 2px 0; }
+    .msg-bubble p { margin: 4px 0; }
+
+    .msg-time {
+      font-size: 11px;
+      color: var(--text-muted);
+      padding: 0 4px;
+    }
+
+    /* Tool calls accordion */
+    .tool-calls {
+      margin-top: 6px;
+      max-width: 100%;
+    }
+
+    .tool-calls-toggle {
+      display: flex; align-items: center; gap: 6px;
+      background: transparent;
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-sm);
+      padding: 5px 10px;
+      color: var(--text-secondary);
+      font-size: 12px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all .15s;
+      width: 100%;
+    }
+    .tool-calls-toggle:hover { border-color: var(--accent); color: var(--accent); }
+
+    .tool-calls-badge {
+      background: rgba(79,156,249,.15);
+      color: var(--accent);
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+
+    .tool-calls-toggle .arrow { margin-inline-start: auto; transition: transform .2s; }
+    .tool-calls-toggle.open .arrow { transform: rotate(180deg); }
+
+    .tool-calls-body {
+      display: none;
+      border: 1px solid var(--border-soft);
+      border-top: none;
+      border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+      background: var(--bg);
+      overflow: hidden;
+    }
+    .tool-calls-body.open { display: block; }
+
+    .tool-call-item {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border-soft);
+      font-size: 12px;
+    }
+    .tool-call-item:last-child { border-bottom: none; }
+
+    .tool-call-name {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent);
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+    .tool-call-label { color: var(--text-muted); font-size: 11px; margin-bottom: 2px; }
+    .tool-call-json {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-secondary);
+      background: var(--bg-card);
+      padding: 6px 8px;
+      border-radius: 4px;
+      overflow-x: auto;
+      white-space: pre;
+      max-height: 120px;
+      overflow-y: auto;
+      margin-top: 2px;
+    }
+
+    /* Typing indicator */
+    .typing-indicator .msg-bubble {
+      display: flex; align-items: center; gap: 4px;
+      padding: 12px 16px;
+    }
+    .typing-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      animation: typing-bounce 1.2s infinite;
+    }
+    .typing-dot:nth-child(2) { animation-delay: .2s; }
+    .typing-dot:nth-child(3) { animation-delay: .4s; }
+    @keyframes typing-bounce {
+      0%,60%,100% { transform: translateY(0); opacity: .4; }
+      30% { transform: translateY(-5px); opacity: 1; }
+    }
+
+    /* Welcome screen */
+    .welcome {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 12px;
+      flex: 1;
+      opacity: .6;
+      user-select: none;
+      text-align: center;
+      padding: 40px;
+    }
+    .welcome-icon { font-size: 48px; }
+    .welcome h2 { font-size: 18px; font-weight: 600; }
+    .welcome p  { font-size: 13px; color: var(--text-secondary); max-width: 320px; line-height: 1.6; }
+
+    /* ── Input bar ───────────────────────────────────────────────── */
+    .input-bar {
+      padding: 16px 20px;
+      background: var(--bg-panel);
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      flex-shrink: 0;
+    }
+
+    .input-wrap {
+      flex: 1;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: flex-end;
+      transition: border-color .15s;
+    }
+    .input-wrap:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+
+    #msg-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 14px;
+      padding: 12px 14px;
+      resize: none;
+      max-height: 120px;
+      min-height: 44px;
+      line-height: 1.5;
+    }
+    #msg-input::placeholder { color: var(--text-muted); }
+
+    .btn-send {
+      width: 44px; height: 44px;
+      background: var(--user-bg);
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: opacity .15s, transform .1s;
+      font-size: 18px;
+    }
+    .btn-send:hover { opacity: .9; transform: scale(1.04); }
+    .btn-send:active { transform: scale(.97); }
+    .btn-send:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+
+    /* ── Scrollbar ───────────────────────────────────────────────── */
+    ::-webkit-scrollbar          { width: 4px; }
+    ::-webkit-scrollbar-track    { background: transparent; }
+    ::-webkit-scrollbar-thumb    { background: var(--border); border-radius: 2px; }
+
+    /* ── Responsive ──────────────────────────────────────────────── */
+    @media (max-width: 700px) {
+      .sidebar { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ──────────────────────────────────────────────────────── -->
+<header>
+  <div class="header-logo">🏦</div>
+  <div>
+    <div class="header-title">פלטפורמת בנקאות</div>
+    <div class="header-sub">סוכן AI — ממשק בדיקת הנחיות</div>
+  </div>
+  <div class="header-status">
+    <div class="status-dot" id="status-dot"></div>
+    <span id="status-text">מחובר</span>
+  </div>
+</header>
+
+<!-- ── Layout ───────────────────────────────────────────────────────── -->
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+
+    <!-- Authenticated customer context -->
+    <div class="sidebar-section">
+      <h3>הקשר מאומת</h3>
+      <div class="customer-list">
+        <div class="account-row">
+          <div class="account-row-left">
+            <div class="account-id">שם לקוח: אשר פלוטניק</div>
+            <div class="account-type">הקשר שיחה מדומה (task_input)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Flow note -->
+    <div class="sidebar-section" style="flex:1;overflow-y:auto;">
+      <h3>מצב עבודה</h3>
+      <div class="accounts-list" id="accounts-list">
+        <div style="font-size:12px;color:var(--text-muted);line-height:1.6;">
+          הממשק עובד מול כלי API בלבד לפי ההרשאות שב-JWT.
+          אין בחירת לקוח ידנית במצב זה.
+        </div>
+      </div>
+    </div>
+
+    <!-- Session + Reset -->
+    <div class="sidebar-section">
+      <h3>סשן</h3>
+      <div class="session-label">מזהה סשן</div>
+      <div class="session-info" id="session-display">—</div>
+      <br />
+      <button class="btn-reset" onclick="resetDB()">🔄 איפוס מסד נתונים</button>
+    </div>
+
+  </aside>
+
+  <!-- Chat -->
+  <div class="chat-area">
+
+    <!-- Quick prompts -->
+    <div class="quick-prompts">
+      <button class="chip" onclick="sendQuick('מה היתרה שלי?')">💰 בדיקת יתרה</button>
+      <button class="chip" onclick="sendQuick('הצג את העסקאות האחרונות שלי')">📋 עסקאות</button>
+      <button class="chip" onclick="sendQuick('מה מצב ההלוואות שלי?')">📉 הלוואות</button>
+      <button class="chip" onclick="sendQuick('מה מצב תיק ניירות הערך שלי?')">📈 ניירות ערך</button>
+      <button class="chip" onclick="sendQuick('מה מצב הפיקדונות שלי?')">🏦 פיקדונות</button>
+      <button class="chip" onclick="sendQuick('תן לי פרטי כרטיסי אשראי')">💳 כרטיסי אשראי</button>
+    </div>
+
+    <!-- Messages -->
+    <div class="messages" id="messages">
+      <div class="welcome" id="welcome-screen">
+        <div class="welcome-icon">🏦</div>
+        <h2>סוכן פלטפורמת הבנקאות</h2>
+        <p>שאלו על יתרות, תנועות, הלוואות, ניירות ערך, פיקדונות וכרטיסי אשראי עבור אשר פלוטניק.</p>
+      </div>
+    </div>
+
+    <!-- Input -->
+    <div class="input-bar">
+      <div class="input-wrap">
+        <textarea
+          id="msg-input"
+          placeholder="שאלו על יתרות, עסקאות, הלוואות, ניירות ערך או פיקדונות…"
+          rows="1"
+          onkeydown="handleKey(event)"
+          oninput="autoResize(this)"
+        ></textarea>
+      </div>
+      <button class="btn-send" id="btn-send" onclick="sendMessage()" title="שליחה (Enter)">➤</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // ── State ─────────────────────────────────────────────────────────
+  let sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9);
+  const customerAvatar = '👤';
+  const simulatedCustomerName = 'אשר פלוטניק';
+  let authorizationHeader = '';
+  let isLoading = false;
+
+  // ── Init ──────────────────────────────────────────────────────────
+  document.getElementById('session-display').textContent = sessionId;
+  loadUiConfig();
+
+  // Ping health
+  fetch('/health').then(r => {
+    const dot  = document.getElementById('status-dot');
+    const text = document.getElementById('status-text');
+    if (r.ok) { dot.style.background = 'var(--green)'; text.textContent = 'מחובר'; }
+    else      { dot.style.background = 'var(--red)';   text.textContent = 'שגיאה'; }
+  }).catch(() => {
+    document.getElementById('status-dot').style.background = 'var(--red)';
+    document.getElementById('status-text').textContent = 'לא מקוון';
+  });
+
+  async function loadUiConfig() {
+    try {
+      const res = await fetch('/jwt.txt', { cache: 'no-store' });
+      if (!res.ok) return;
+      const rawJwt = (await res.text()).trim();
+      if (!rawJwt) return;
+      authorizationHeader = /^Bearer\s+/i.test(rawJwt) ? rawJwt : `Bearer ${rawJwt}`;
+    } catch (_err) {
+      authorizationHeader = '';
+    }
+  }
+
+  // ── Reset DB ──────────────────────────────────────────────────────
+  async function resetDB() {
+    try {
+      await fetch('/reset', { method: 'POST' });
+      appendSystemMsg('🔄 מסד הנתונים אופס למצב ההתחלתי.');
+    } catch (e) {
+      appendSystemMsg('❌ איפוס מסד הנתונים נכשל.');
+    }
+  }
+
+  // ── Message send ──────────────────────────────────────────────────
+  function handleKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  }
+
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+  }
+
+  function sendQuick(text) {
+    document.getElementById('msg-input').value = text;
+    sendMessage();
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById('msg-input');
+    const text  = input.value.trim();
+    if (!text || isLoading) return;
+
+    // Remove welcome
+    const welcome = document.getElementById('welcome-screen');
+    if (welcome) welcome.remove();
+
+    // Add user bubble
+    appendMessage('user', text, customerAvatar);
+
+    input.value = '';
+    input.style.height = 'auto';
+    setLoading(true);
+
+    // Typing indicator
+    const typingId = appendTyping();
+
+    try {
+      const enrichedTaskInput = `[שם לקוח: ${simulatedCustomerName}]\n${text}`;
+
+      const res = await fetch('/api/banking-agent-demo/a2a/execute', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'sessionId': sessionId,
+          ...(authorizationHeader ? { Authorization: authorizationHeader } : {}),
+        },
+        body: JSON.stringify({ task_input: enrichedTaskInput, session_id: sessionId }),
+      });
+
+      removeTyping(typingId);
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        appendMessage('agent', `❌ שגיאה ${res.status}: ${err.error || 'שגיאה לא ידועה'}`, '🤖');
+        return;
+      }
+
+      const data = await res.json();
+      sessionId = data.session_id || sessionId;
+      document.getElementById('session-display').textContent = sessionId;
+
+      appendMessage('agent', data.content || '(אין תשובה)', '🤖', data.tool_calls);
+
+    } catch (err) {
+      removeTyping(typingId);
+      appendMessage('agent', `❌ שגיאת רשת: ${err.message}`, '🤖');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // ── Rendering helpers ─────────────────────────────────────────────
+  function setLoading(v) {
+    isLoading = v;
+    document.getElementById('btn-send').disabled = v;
+  }
+
+  function scrollBottom() {
+    const m = document.getElementById('messages');
+    m.scrollTop = m.scrollHeight;
+  }
+
+  function formatTime() {
+    return new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function renderMarkdown(text) {
+    return text
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>')
+      .replace(/`(.+?)`/g, '<code>$1</code>')
+      .replace(/^### (.+)$/gm, '<strong>$1</strong>')
+      .replace(/^## (.+)$/gm,  '<strong>$1</strong>')
+      .replace(/^# (.+)$/gm,   '<strong>$1</strong>')
+      .replace(/^- (.+)$/gm,   '<li>$1</li>')
+      .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
+      .replace(/\n\n/g, '</p><p>')
+      .replace(/\n/g,   '<br />')
+      .replace(/^(.+)$/, '<p>$1</p>');
+  }
+
+  function appendMessage(role, text, avatar, toolCalls = []) {
+    const msgs = document.getElementById('messages');
+
+    const toolHtml = buildToolCallsHtml(toolCalls);
+    const time     = formatTime();
+    const isUser   = role === 'user';
+
+    const div = document.createElement('div');
+    div.className = `msg ${role}`;
+    div.innerHTML = `
+      <div class="msg-avatar">${avatar}</div>
+      <div class="msg-body">
+        <div class="msg-bubble">${isUser ? escapeHtml(text) : renderMarkdown(text)}</div>
+        ${toolHtml}
+        <div class="msg-time">${time}</div>
+      </div>
+    `;
+
+    msgs.appendChild(div);
+    scrollBottom();
+
+    // Wire up toggles
+    div.querySelectorAll('.tool-calls-toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        btn.classList.toggle('open');
+        btn.nextElementSibling.classList.toggle('open');
+      });
+    });
+  }
+
+  function buildToolCallsHtml(toolCalls) {
+    if (!toolCalls || toolCalls.length === 0) return '';
+
+    const items = toolCalls.map(call => {
+      const name   = call.toolName || call.name || 'tool';
+      const args   = JSON.stringify(call.args || {}, null, 2);
+      const result = call.result !== undefined ? JSON.stringify(call.result, null, 2) : '—';
+      return `
+        <div class="tool-call-item">
+          <div class="tool-call-name">⚡ ${name}</div>
+          <div class="tool-call-label">ארגומנטים</div>
+          <div class="tool-call-json">${escapeHtml(args)}</div>
+          <div class="tool-call-label" style="margin-top:6px;">תוצאה</div>
+          <div class="tool-call-json">${escapeHtml(result)}</div>
+        </div>
+      `;
+    }).join('');
+
+    const uid = 'tc_' + Math.random().toString(36).slice(2, 8);
+    return `
+      <div class="tool-calls">
+        <button class="tool-calls-toggle" id="${uid}">
+          🔧 קריאות כלים
+          <span class="tool-calls-badge">${toolCalls.length}</span>
+          <span class="arrow">▾</span>
+        </button>
+        <div class="tool-calls-body">
+          ${items}
+        </div>
+      </div>
+    `;
+  }
+
+  function appendTyping() {
+    const msgs = document.getElementById('messages');
+    const id   = 'typing_' + Date.now();
+    const div  = document.createElement('div');
+    div.className = 'msg agent typing-indicator';
+    div.id = id;
+    div.innerHTML = `
+      <div class="msg-avatar">🤖</div>
+      <div class="msg-body">
+        <div class="msg-bubble">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+      </div>
+    `;
+    msgs.appendChild(div);
+    scrollBottom();
+    return id;
+  }
+
+  function removeTyping(id) {
+    document.getElementById(id)?.remove();
+  }
+
+  function appendSystemMsg(text) {
+    const msgs = document.getElementById('messages');
+    const div  = document.createElement('div');
+    div.style.cssText = 'text-align:center;font-size:12px;color:var(--text-muted);padding:4px 0;';
+    div.textContent = text;
+    msgs.appendChild(div);
+    scrollBottom();
+  }
+
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+</script>
+</body>
+</html>
