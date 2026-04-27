@@ -30,7 +30,44 @@ public class AccountSummaryAndTransactionsToolService {
         this.requestContextHolder = requestContextHolder;
     }
 
-    @Tool(name = "get-account-summary-and-transactions", description = "Get current account summary details and recent transactions from the BFF current account summary API.")
+    @Tool(name = "get-account-summary-and-transactions", description = """
+            Use this tool to retrieve current-account summary and recent transactions for the authenticated customer.
+            Uses request context headers (Authorization, transaction/language/client headers).
+
+            Output schema (key parts):
+            - CurrentAccountSummaryData:
+              {
+                branchNumber: string,
+                accountNumber: string,
+                balance: number,
+                availableBalance: number,
+                currencyCode: string,
+                currencyDescription: string,
+                creditLineFramework: number,
+                secureFutureTransactionsExists: boolean,
+                loanExists: boolean,
+                termDepositExists: boolean,
+                savingPlansExists: boolean,
+                loanTermDepositExists: boolean,
+                securityExists: boolean,
+                mortgageExists: boolean,
+                parameterMinTransactionsForDisplay: number,
+                isInLegalTreatment: boolean
+              }
+
+            - transactionsList: CurrentAccountTransactionItem[]
+              [
+                {
+                  transactionNumber: number,
+                  transactionCode: string,
+                  transactionDescription: string,
+                  transactionFullDescription: string,
+                  transactionDate: string (YYYYMMDD),
+                  transactionBusinessDate: string (YYYYMMDD),
+                  transactionAmount: number
+                }
+              ]
+            """)
     public CurrentAccountSummaryAndTransactionsResponse getAccountSummaryAndTransactions() {
         BankAgentRequestContext requestContext = requestContextHolder.getOrThrow();
         String endpoint = currentAccountBaseUrl + "/api/v1/currentAccount/BFFcurrentAccSummaryTrans";

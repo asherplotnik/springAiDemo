@@ -27,7 +27,46 @@ public class CreditCardsToolService {
         this.requestContextHolder = requestContextHolder;
     }
 
-    @Tool(name = "get-customer-credit-cards", description = "Get customer credit card list and next debit totals from the BFF card list API.")
+    @Tool(name = "get-customer-credit-cards", description = """
+            Use this tool to retrieve the authenticated customer's credit cards and next debit totals.
+            Uses request context headers (Authorization, SessionID, transaction/language/client headers).
+
+            Output schema (key parts, no metadata):
+            - CardListData:
+              {
+                nextDebitTotalNIS: number,
+                nextDebitTotalUSD: number,
+                nextDebitTotalEuro: number,
+                maxNumOfCardsForDisplay: number,
+                nextDebitDateForDisplay: string,
+                cardList: CardItem[]
+              }
+
+            - CardItem:
+              {
+                cardFourLastDigits: string,
+                nextDebitDate: string,
+                isDigitalCard: boolean,
+                cardStatus: string,
+                cardStatusDescription: string,
+                isAllowToUnfreeze: boolean,
+                creditCardMonthlyUsageAmount: number,
+                creditCardIssuerCodeDesc: string,
+                dataCorrectnessDate: string,
+                totalCardMonthUtilizeLimit: number,
+                maximumRechargeAmount: number,
+                nextDebitTotalNIS: number,
+                nextDebitTotalUSD: number,
+                nextDebitTotalEuro: number,
+                prePaidCardBalance: number,
+                leftToLoad: number,
+                isDebitCard: boolean,
+                isExternalCard: boolean,
+                cardFamily: string,
+                cardFamilyDescription: string,
+                cardTypeDescription: string
+              }
+            """)
     public CustomerCreditCardsResponse getCustomerCreditCards() {
         BankAgentRequestContext requestContext = requestContextHolder.getOrThrow();
         String endpoint = creditCardsBaseUrl + "/api/v1/creditCard/BFFcardList";

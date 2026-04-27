@@ -27,7 +27,28 @@ public class SecuritiesSummaryToolService {
         this.requestContextHolder = requestContextHolder;
     }
 
-    @Tool(name = "get-securities-summary", description = "Get securities portfolio summary from the BFF securities portfolio API.")
+    @Tool(name = "get-securities-summary", description = """
+            Use this tool to retrieve the authenticated customer's securities portfolio summary.
+            Uses request context headers (Authorization, transaction/language/client headers).
+
+            Output schema (key parts, no metadata):
+            - BffSecuritiesPortfolio:
+              {
+                securitiesDepositID: string,
+                securitiesPortfolioValue: number,
+                securitiesQuantity: number,
+                israeliSecuritiesValue: number,
+                foreignSecuritiesValue: number,
+                yieldCalculationExists: boolean,
+                yieldPortfolioValue: number,
+                portfolioProfitLossAmount: number,
+                portfolioProfitLossPercent: number,
+                receiptsExist: boolean,
+                receiptsValue: number,
+                openOrdersQuantity: number,
+                isPortfolioProfitLossCalculated: boolean
+              }
+            """)
     public SecuritiesSummaryResponse getSecuritiesSummary() {
         BankAgentRequestContext requestContext = requestContextHolder.getOrThrow();
         String endpoint = securitiesBaseUrl + "/api/v1/securities/BFFsecuritiesPortfolio";

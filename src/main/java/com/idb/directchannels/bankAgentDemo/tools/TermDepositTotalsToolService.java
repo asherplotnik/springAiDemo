@@ -27,7 +27,38 @@ public class TermDepositTotalsToolService {
         this.requestContextHolder = requestContextHolder;
     }
 
-    @Tool(name = "get-term-deposit-totals", description = "Get term-deposit totals and deposit list from the BFF term deposit totals API.")
+    @Tool(name = "get-term-deposit-totals", description = """
+            Use this tool to retrieve the authenticated customer's term-deposit totals and deposit list.
+            Uses request context headers (Authorization, transaction/language/client headers).
+
+            Output schema (key parts, no metadata):
+            - BffTermDepositTotals:
+              {
+                termDepositsBalanceILS: number,
+                termDepositsForeignCurrencyBalance: number,
+                currencyCode: string,
+                termDepositsTotalsByCurrency: TermDepositsTotalsByCurrencyItem[],
+                termDeposits: TermDepositItem[]
+              }
+
+            - TermDepositsTotalsByCurrencyItem:
+              {
+                termDepositsBalance: number,
+                currencyCode: string
+              }
+
+            - TermDepositItem:
+              {
+                currencyCode: string,
+                termDepositAccountID: string,
+                combinedTermDepositTypes: string,
+                subProductCode: string,
+                subProductLongDescription: string,
+                subProductShortDescription: string,
+                termDepositBalance: number,
+                depositMaturityDate: string
+              }
+            """)
     public TermDepositTotalsResponse getTermDepositTotals() {
         BankAgentRequestContext requestContext = requestContextHolder.getOrThrow();
         String endpoint = depositsBaseUrl + "/api/v1/deposits/BFFtermDepositTotals";

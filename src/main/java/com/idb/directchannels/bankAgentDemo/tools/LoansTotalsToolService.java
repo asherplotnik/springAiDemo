@@ -27,7 +27,40 @@ public class LoansTotalsToolService {
         this.requestContextHolder = requestContextHolder;
     }
 
-    @Tool(name = "get-loans-totals", description = "Get loan totals and loan list from the BFF loans totals API.")
+    @Tool(name = "get-loans-totals", description = """
+            Use this tool to retrieve the authenticated customer's loan totals and loan list.
+            Uses request context headers (Authorization, transaction/language/client headers).
+
+            Output schema (key parts, no metadata):
+            - BffLoansTotals:
+              {
+                nextPaymentAmount: number,
+                currentMonthPaymentAmount: number,
+                currentHebrewMonth: string,
+                currencyCode: string,
+                originalCurrencyBalance: number,
+                loansBalanceNIS: number,
+                eligibilityLoanAmount: number,
+                loansQuantity: number,
+                arrearsLoansQuantity: number,
+                loansList: LoanItem[]
+              }
+
+            - LoanItem:
+              {
+                loanAccountID: string,
+                loanAccountCurrencyCode: string,
+                loanRegistrationValueDate: string,
+                mainLoanModelDescription: string,
+                secondaryLoanModelDescription: string,
+                originPaymentsQuantity: number,
+                paidPaymentsCount: number,
+                cashBalanceNIS: number,
+                nextPaymentDate: string,
+                isLoanAccountArrears: boolean,
+                originalLoanBalance: number
+              }
+            """)
     public LoansTotalsResponse getLoansTotals() {
         BankAgentRequestContext requestContext = requestContextHolder.getOrThrow();
         String endpoint = loansBaseUrl + "/api/v1/loans/BFFloansTotals";
