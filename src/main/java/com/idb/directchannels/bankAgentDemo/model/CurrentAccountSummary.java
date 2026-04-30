@@ -6,7 +6,7 @@ import lombok.Generated;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Generated
-public record CurrentAccountSummaryAndTransactions(
+public record CurrentAccountSummary(
         CurrentAccountSummaryData data,
         MetaData metaData) {
 }

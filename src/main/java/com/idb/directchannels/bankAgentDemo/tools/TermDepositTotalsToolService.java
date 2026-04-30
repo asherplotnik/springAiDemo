@@ -9,7 +9,7 @@ import org.springframework.web.client.RestClientResponseException;
 
 import com.idb.directchannels.bankAgentDemo.context.BankAgentRequestContext;
 import com.idb.directchannels.bankAgentDemo.context.BankAgentRequestContextHolder;
-import com.idb.directchannels.bankAgentDemo.model.TermDepositTotalsResponse;
+import com.idb.directchannels.bankAgentDemo.model.TermDepositSummaryResponse;
 
 @Service
 public class TermDepositTotalsToolService {
@@ -59,9 +59,9 @@ public class TermDepositTotalsToolService {
                 depositMaturityDate: string
               }
             """)
-    public TermDepositTotalsResponse getTermDepositTotals() {
+    public TermDepositSummaryResponse getTermDepositTotals() {
         BankAgentRequestContext requestContext = requestContextHolder.getOrThrow();
-        String endpoint = depositsBaseUrl + "/api/v1/deposits/BFFtermDepositTotals";
+        String endpoint = depositsBaseUrl + "/api/v1/deposits/termDepositSummary";
 
         try {
             return restClient.get()
@@ -72,7 +72,7 @@ public class TermDepositTotalsToolService {
                     .header("clientOS", requestContext.clientOS())
                     .header("clientVersion", requestContext.clientVersion())
                     .retrieve()
-                    .body(TermDepositTotalsResponse.class);
+                    .body(TermDepositSummaryResponse.class);
         } catch (RestClientResponseException ex) {
             throw new RuntimeException(
                     "Term deposit totals API failed (" + ex.getStatusCode().value() + " " + ex.getStatusText() + "): " + ex.getResponseBodyAsString(),

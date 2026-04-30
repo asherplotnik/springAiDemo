@@ -8,7 +8,7 @@ import lombok.Generated;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Generated
-public record BffTermDepositTotals(
+public record TermDepositSummary(
         Double termDepositsBalanceILS,
         Double termDepositsForeignCurrencyBalance,
         String currencyCode,

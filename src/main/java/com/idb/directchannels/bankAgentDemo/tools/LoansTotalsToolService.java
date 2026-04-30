@@ -9,7 +9,7 @@ import org.springframework.web.client.RestClientResponseException;
 
 import com.idb.directchannels.bankAgentDemo.context.BankAgentRequestContext;
 import com.idb.directchannels.bankAgentDemo.context.BankAgentRequestContextHolder;
-import com.idb.directchannels.bankAgentDemo.model.LoansTotalsResponse;
+import com.idb.directchannels.bankAgentDemo.model.LoansSummaryResponse;
 
 @Service
 public class LoansTotalsToolService {
@@ -61,9 +61,9 @@ public class LoansTotalsToolService {
                 originalLoanBalance: number
               }
             """)
-    public LoansTotalsResponse getLoansTotals() {
+    public LoansSummaryResponse getLoansTotals() {
         BankAgentRequestContext requestContext = requestContextHolder.getOrThrow();
-        String endpoint = loansBaseUrl + "/api/v1/loans/BFFloansTotals";
+        String endpoint = loansBaseUrl + "/api/v1/loans/loansSummary";
 
         try {
             return restClient.get()
@@ -74,7 +74,7 @@ public class LoansTotalsToolService {
                     .header("clientOS", requestContext.clientOS())
                     .header("clientVersion", requestContext.clientVersion())
                     .retrieve()
-                    .body(LoansTotalsResponse.class);
+                    .body(LoansSummaryResponse.class);
         } catch (RestClientResponseException ex) {
             throw new RuntimeException(
                     "Loans totals API failed (" + ex.getStatusCode().value() + " " + ex.getStatusText() + "): " + ex.getResponseBodyAsString(),

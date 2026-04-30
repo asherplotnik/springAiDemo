@@ -7,6 +7,6 @@ import lombok.Generated;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Generated
-public record TermDepositTotalsResponse(
-        @JsonProperty("BFFtermDepositTotals") BffTermDepositTotals bffTermDepositTotals) {
+public record TermDepositSummaryResponse(
+        @JsonProperty("termDepositSummary") TermDepositSummary termDepositSummary) {
 }

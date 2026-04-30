@@ -51,7 +51,7 @@ public class SecuritiesSummaryToolService {
             """)
     public SecuritiesSummaryResponse getSecuritiesSummary() {
         BankAgentRequestContext requestContext = requestContextHolder.getOrThrow();
-        String endpoint = securitiesBaseUrl + "/api/v1/securities/BFFsecuritiesPortfolio";
+        String endpoint = securitiesBaseUrl + "/api/v1/securities/securitiesPortfolio";
 
         try {
             return restClient.get()

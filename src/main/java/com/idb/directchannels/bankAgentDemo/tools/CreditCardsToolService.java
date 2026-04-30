@@ -69,7 +69,7 @@ public class CreditCardsToolService {
             """)
     public CustomerCreditCardsResponse getCustomerCreditCards() {
         BankAgentRequestContext requestContext = requestContextHolder.getOrThrow();
-        String endpoint = creditCardsBaseUrl + "/api/v1/creditCard/BFFcardList";
+        String endpoint = creditCardsBaseUrl + "/api/v1/creditCard/cardList";
 
         try {
             return restClient.get()

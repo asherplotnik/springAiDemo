@@ -8,7 +8,7 @@ import lombok.Generated;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Generated
-public record BffLoansTotals(
+public record LoansSummary(
         Double nextPaymentAmount,
         Double currentMonthPaymentAmount,
         String currentHebrewMonth,

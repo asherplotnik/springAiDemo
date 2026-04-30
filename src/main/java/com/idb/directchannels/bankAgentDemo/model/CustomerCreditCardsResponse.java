@@ -6,5 +6,5 @@ import lombok.Generated;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Generated
 public record CustomerCreditCardsResponse(
-        @JsonProperty("BFFcardList") BffCardList bffCardList) {
+        @JsonProperty("cardList") CardList cardList) {
 }

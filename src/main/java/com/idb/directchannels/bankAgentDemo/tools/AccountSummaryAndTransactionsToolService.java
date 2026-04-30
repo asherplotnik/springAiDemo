@@ -9,7 +9,7 @@ import org.springframework.web.client.RestClientResponseException;
 
 import com.idb.directchannels.bankAgentDemo.context.BankAgentRequestContext;
 import com.idb.directchannels.bankAgentDemo.context.BankAgentRequestContextHolder;
-import com.idb.directchannels.bankAgentDemo.model.CurrentAccountSummaryAndTransactions;
+import com.idb.directchannels.bankAgentDemo.model.CurrentAccountSummary;
 import com.idb.directchannels.bankAgentDemo.model.CurrentAccountSummaryData;
 import com.idb.directchannels.bankAgentDemo.model.CurrentAccountSummaryAndTransactionsResponse;
 import com.idb.directchannels.bankAgentDemo.util.JwtUtils;
@@ -70,7 +70,7 @@ public class AccountSummaryAndTransactionsToolService {
             """)
     public CurrentAccountSummaryAndTransactionsResponse getAccountSummaryAndTransactions() {
         BankAgentRequestContext requestContext = requestContextHolder.getOrThrow();
-        String endpoint = currentAccountBaseUrl + "/api/v1/currentAccount/BFFcurrentAccSummaryTrans";
+        String endpoint = currentAccountBaseUrl + "/api/v1/currentAccount/currentAccountSummary";
         String branchNumber = JwtUtils.getBranchNumber(requestContext.authorization());
         String accountNumber = JwtUtils.getAccountNumber(requestContext.authorization());
 
@@ -96,11 +96,11 @@ public class AccountSummaryAndTransactionsToolService {
             CurrentAccountSummaryAndTransactionsResponse response,
             String branchNumber,
             String accountNumber) {
-        if (response == null || response.bffCurrentAccSummaryTrans() == null || response.bffCurrentAccSummaryTrans().data() == null) {
+        if (response == null || response.currentAccountSummary() == null || response.currentAccountSummary().data() == null) {
             return response;
         }
 
-        CurrentAccountSummaryAndTransactions summary = response.bffCurrentAccSummaryTrans();
+        CurrentAccountSummary summary = response.currentAccountSummary();
         CurrentAccountSummaryData data = summary.data();
         CurrentAccountSummaryData enrichedData = new CurrentAccountSummaryData(
                 branchNumber,
@@ -122,6 +122,6 @@ public class AccountSummaryAndTransactionsToolService {
                 data.transactionsList());
 
         return new CurrentAccountSummaryAndTransactionsResponse(
-                new CurrentAccountSummaryAndTransactions(enrichedData, summary.metaData()));
+                new CurrentAccountSummary(enrichedData, summary.metaData()));
     }
 }

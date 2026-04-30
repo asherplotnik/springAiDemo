@@ -6,7 +6,7 @@ import lombok.Generated;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Generated
-public record BffSecuritiesPortfolio(
+public record SecuritiesPortfolio(
         String securitiesDepositID,
         Double securitiesPortfolioValue,
         Integer securitiesQuantity,
