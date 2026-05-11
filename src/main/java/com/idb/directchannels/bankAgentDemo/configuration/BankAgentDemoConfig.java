@@ -1,5 +1,6 @@
 package com.idb.directchannels.bankAgentDemo.configuration;
 
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.google.genai.Client;
 import com.google.genai.types.HttpOptions;
 
@@ -14,6 +15,11 @@ import org.springframework.web.client.RestClient;
 
 @Configuration
 public class BankAgentDemoConfig {
+
+    @Bean
+    public JsonMapper jsonMapper() {
+        return JsonMapper.builder().build();
+    }
 
     @Bean
     public ChatModel bankAgentChatModel(
