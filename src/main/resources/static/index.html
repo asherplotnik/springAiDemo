@@ -12,28 +12,30 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:          #0d1117;
-      --bg-panel:    #161b22;
-      --bg-card:     #1c2333;
-      --bg-input:    #21262d;
-      --border:      #30363d;
-      --border-soft: #21262d;
+      --bg:          #f0f7fc;
+      --bg-panel:    #ffffff;
+      --bg-card:     #e8f4fc;
+      --bg-input:    #ffffff;
+      --border:      #c5e2f2;
+      --border-soft: #e3f2fb;
 
-      --accent:      #4f9cf9;
-      --accent2:     #7b61ff;
-      --accent-glow: rgba(79,156,249,.25);
+      --accent:      #0b8fd9;
+      --accent2:     #5ec8ff;
+      --accent-glow: rgba(11, 143, 217, 0.2);
+      --accent-chip: rgba(11, 143, 217, 0.1);
+      --accent-badge: rgba(11, 143, 217, 0.16);
 
-      --user-bg:     linear-gradient(135deg, #4f9cf9 0%, #7b61ff 100%);
-      --agent-bg:    #1c2333;
+      --user-bg:     linear-gradient(135deg, #5ec8ff 0%, #0b8fd9 50%, #0678c4 100%);
+      --agent-bg:    #ffffff;
 
-      --text-primary:   #e6edf3;
-      --text-secondary: #8b949e;
-      --text-muted:     #484f58;
+      --text-primary:   #0f172a;
+      --text-secondary: #64748b;
+      --text-muted:     #94a3b8;
 
-      --green:  #3fb950;
-      --yellow: #d29922;
-      --red:    #f85149;
-      --teal:   #39d353;
+      --green:  #059669;
+      --yellow: #ca8a04;
+      --red:    #dc2626;
+      --teal:   #0d9488;
 
       --radius-sm: 8px;
       --radius:    14px;
@@ -47,7 +49,7 @@
 
     body {
       font-family: 'Heebo', system-ui, sans-serif;
-      background: var(--bg);
+      background: linear-gradient(180deg, #ffffff 0%, var(--bg) 45%, #e3f2fb 100%);
       color: var(--text-primary);
       display: flex;
       flex-direction: column;
@@ -57,8 +59,9 @@
     /* ── Header ─────────────────────────────────────────────────── */
     header {
       height: var(--header-h);
-      background: var(--bg-panel);
-      border-bottom: 1px solid var(--border);
+      background: linear-gradient(90deg, #ffffff 0%, #f5fbff 50%, #eef8ff 100%);
+      border-bottom: 1px solid var(--border-soft);
+      box-shadow: 0 1px 0 rgba(11, 143, 217, 0.06);
       display: flex;
       align-items: center;
       gap: 14px;
@@ -105,7 +108,7 @@
     .sidebar {
       width: var(--sidebar-w);
       background: var(--bg-panel);
-      border-inline-end: 1px solid var(--border);
+      border-inline-end: 1px solid var(--border-soft);
       display: flex;
       flex-direction: column;
       flex-shrink: 0;
@@ -225,6 +228,8 @@
       padding: 12px 20px;
       overflow-x: auto;
       flex-shrink: 0;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(6px);
       border-bottom: 1px solid var(--border-soft);
       scrollbar-width: none;
     }
@@ -243,7 +248,7 @@
       transition: all .15s;
       white-space: nowrap;
     }
-    .chip:hover { border-color: var(--accent); color: var(--accent); background: rgba(79,156,249,.08); }
+    .chip:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-chip); }
 
     /* Messages */
     .messages {
@@ -288,6 +293,7 @@
       background: var(--agent-bg);
       border: 1px solid var(--border-soft);
       border-start-start-radius: 4px;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
     }
     .msg.user .msg-bubble {
       background: var(--user-bg);
@@ -301,7 +307,8 @@
     .msg-bubble code {
       font-family: 'JetBrains Mono', monospace;
       font-size: 12px;
-      background: rgba(255,255,255,.08);
+      background: rgba(11, 143, 217, 0.1);
+      color: var(--text-primary);
       padding: 1px 5px;
       border-radius: 4px;
     }
@@ -376,7 +383,7 @@
       font-family: 'JetBrains Mono', monospace;
       font-size: 11px;
       color: var(--text-secondary);
-      background: var(--bg-card);
+      background: var(--bg);
       padding: 6px 8px;
       border-radius: 4px;
       overflow-x: auto;
@@ -409,7 +416,7 @@
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       gap: 12px;
       flex: 1;
-      opacity: .6;
+      opacity: .85;
       user-select: none;
       text-align: center;
       padding: 40px;
@@ -421,8 +428,8 @@
     /* ── Input bar ───────────────────────────────────────────────── */
     .input-bar {
       padding: 16px 20px;
-      background: var(--bg-panel);
-      border-top: 1px solid var(--border);
+      background: linear-gradient(180deg, #ffffff 0%, #f5fbff 100%);
+      border-top: 1px solid var(--border-soft);
       display: flex;
       gap: 10px;
       align-items: flex-end;
@@ -488,7 +495,7 @@
 <header>
   <div class="header-logo">🏦</div>
   <div>
-    <div class="header-title">פלטפורמת בנקאות - SPRING-AI</div>
+    <div class="header-title">פלטפורמת בנקאות - SPRING-AI - A2A</div>
     <div class="header-sub">סוכן AI — ממשק בדיקת הנחיות</div>
   </div>
   <div class="header-status">

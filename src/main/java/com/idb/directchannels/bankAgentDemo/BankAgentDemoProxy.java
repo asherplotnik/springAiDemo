@@ -1,5 +1,7 @@
 package com.idb.directchannels.bankAgentDemo;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -18,6 +20,12 @@ import lombok.RequiredArgsConstructor;
 public class BankAgentDemoProxy {
     private final BankAgentDemoService bankAgentDemoService;
     private final BankAgentRequestContextHolder requestContextHolder;
+
+    /** Used by static UI to show connection status (see {@code index.html} {@code fetch('/health')}). */
+    @GetMapping("/health")
+    public ResponseEntity<String> health() {
+        return ResponseEntity.ok("ok");
+    }
 
     @PostMapping("/api/banking-agent-demo/a2a/execute")
     public BankAgentExecuteResponse getBankAgentDemo(

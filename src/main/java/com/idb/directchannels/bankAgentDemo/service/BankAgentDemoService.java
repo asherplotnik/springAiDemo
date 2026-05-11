@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.ChatClientResponse;
+import org.springframework.ai.chat.messages.AbstractMessage;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.model.Generation;
@@ -130,8 +133,14 @@ public class BankAgentDemoService {
                         termDepositTotalsToolService)
                 .call();
 
-        ChatResponse chatResponse = responseSpec.chatResponse();
-        String content = responseSpec.content();
+        // Single advisor-chain execution: chatResponse() and content() each call the chain once (2.0.0-M4).
+        ChatClientResponse clientResponse = responseSpec.chatClientResponse();
+        ChatResponse chatResponse = clientResponse.chatResponse();
+        String content = Optional.ofNullable(chatResponse)
+                .map(ChatResponse::getResult)
+                .map(Generation::getOutput)
+                .map(AbstractMessage::getText)
+                .orElse(null);
 
         List<Object> roundToolCalls = new ArrayList<>();
         collectSpringAiToolCalls(chatResponse, roundToolCalls);
